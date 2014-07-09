@@ -1,4 +1,4 @@
-#include "../libctf/src/libctf.h"
+#include "../lctf/src/libctf.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,13 +30,11 @@ search (char* type_name, ctf_file file, ctf_type* out_type)
 	int rv = 0;
 	ctf_type type = NULL;
 
-	int i = 0;
 	while ((rv = ctf_file_get_next_type(file, type, &type)) == CTF_OK)
 	{
 		ctf_kind kind;
 		ctf_type_get_kind(type, &kind);
 
-		printf("%d ", i++);
 		switch (kind)
 		{
 			case CTF_KIND_INT:
@@ -164,6 +162,312 @@ search (char* type_name, ctf_file file, ctf_type* out_type)
 	return NOT_FOUND;
 }
 
+static char*
+get_type_string_representation (ctf_type type)
+{
+	ctf_kind kind;
+	ctf_type_get_kind(type, &kind);
+
+	switch (kind)
+	{
+		case CTF_KIND_INT:
+		{
+			ctf_int _int;
+			ctf_int_init(type, &_int);
+
+			char* name;
+			ctf_int_get_name(_int, &name);
+
+			return strdup(name);
+		}
+
+		case CTF_KIND_FLOAT:
+		{
+			ctf_float _float;
+			ctf_float_init(type, &_float);
+
+			char* name;
+			ctf_float_get_name(_float, &name);
+
+			return strdup(name);
+		}
+
+		case CTF_KIND_POINTER:
+		{
+			ctf_type ref_type;
+			ctf_type_init(type, &ref_type);
+
+			char result[1024];
+			char* type_string = get_type_string_representation(ref_type);
+
+			memset(result, '\0', 1024);
+			snprintf(result, 1024, "%s*", type_string);
+			free(type_string);
+
+			return strdup(result);
+		}
+
+		/* FALL THROUGH */
+		case CTF_KIND_STRUCT:
+		case CTF_KIND_UNION:
+		{
+			ctf_struct_union struct_union;
+			ctf_struct_union_init(type, &struct_union);
+
+			char* name;
+			ctf_struct_union_get_name(struct_union, &name);
+
+			char result[1024];
+			memset(result, '\0', 1024);
+			snprintf(result, 1024, "%s %s", 
+			    (kind == CTF_KIND_STRUCT ? "struct" : "union"), name);
+
+			return strdup(result);
+		}
+
+		case CTF_KIND_TYPEDEF:
+		{
+			ctf_typedef _typedef;
+			ctf_typedef_init(type, &_typedef);
+
+			char* name;
+			ctf_typedef_get_name(_typedef, &name);
+
+			return strdup(name);
+		}
+
+		case CTF_KIND_CONST:
+		{
+			/* TODO special case const pointer! */
+			ctf_type ref_type;
+			ctf_type_init(type, &ref_type);
+
+			char* ref_type_string = get_type_string_representation(ref_type);
+
+			char result[1024];
+			memset(result, '\0', 1024);
+			snprintf(result, 1024, "const %s", ref_type_string);
+			free(ref_type_string);
+
+			return strdup(result);
+		}
+
+		case CTF_KIND_RESTRICT:
+		{
+			/* TODO special case restrict pointer! */
+			ctf_type ref_type;
+			ctf_type_init(type, &ref_type);
+
+			char* ref_type_string = get_type_string_representation(ref_type);
+
+			char result[1024];
+			memset(result, '\0', 1024);
+			snprintf(result, 1024, "restrict %s", ref_type_string);
+			free(ref_type_string);
+
+			return strdup(result);
+		}
+
+		case CTF_KIND_VOLATILE:
+		{
+			/* TODO special case volatile pointer! */
+			ctf_type ref_type;
+			ctf_type_init(type, &ref_type);
+
+			char* ref_type_string = get_type_string_representation(ref_type);
+
+			char result[1024];
+			memset(result, '\0', 1024);
+			snprintf(result, 1024, "volatile %s", ref_type_string);
+			free(ref_type_string);
+
+			return strdup(result);
+		}
+
+		case CTF_KIND_FWD_DECL:
+		{
+			ctf_fwd_decl fwd_decl;
+			ctf_fwd_decl_init(type, &fwd_decl);
+
+			char* name;
+			ctf_fwd_decl_get_name(fwd_decl, &name);
+
+			char result[1024];
+			memset(result, '\0', 1024);
+			snprintf(result, 1024, "forward declaration of %s", name);
+
+			return strdup(result);
+		}
+
+		case CTF_KIND_ARRAY:
+		{
+			ctf_array array;
+			ctf_array_init(type, &array);
+			
+			char* name;
+			ctf_array_get_name(array, &name);
+
+			ctf_array_length length;
+			ctf_array_get_length(array, &length);
+
+			ctf_type content_type;
+			ctf_array_get_content_type(array, &content_type);
+
+			char* type_string = get_type_string_representation(content_type);
+
+			char result[1024];
+			memset(result, '\0', 1024);
+			snprintf(result, 1024, "%s %s[%d]", type_string, name, length);
+			free(type_string);
+
+			return strdup(result);
+		}
+
+		case CTF_KIND_NONE:
+			return strdup("none");
+	}
+
+	printf("KIND %d\n", kind);
+	return strdup("unresolvable");
+}
+
+static void
+print_type_name (ctf_type type)
+{
+	ctf_kind kind;
+	ctf_type_get_kind(type, &kind);
+
+	if (kind == CTF_KIND_INT)
+	{
+		ctf_int _int;
+		ctf_int_init(type, &_int);
+
+		char* name;
+		ctf_int_get_name(_int, &name);
+
+		printf("%s", name);
+	}
+}
+
+static void
+print_typedef_chain (ctf_type type)
+{
+	ctf_kind kind;
+	ctf_type_get_kind(type, &kind);
+
+	if (kind == CTF_KIND_TYPEDEF)
+	{
+		ctf_typedef _typedef;
+		ctf_typedef_init(type, &_typedef);
+
+		char* name;
+		ctf_typedef_get_name(_typedef, &name);
+
+		printf("%s -> ", name);
+		
+		ctf_type ref_type;
+		ctf_typedef_get_type(_typedef, &ref_type);
+
+		print_typedef_chain(ref_type);
+	}
+	else
+	{
+		print_type_name(type);
+		printf("\n");
+	}
+}
+
+#define STRUCT_NORMAL               1
+#define STRUCT_LINKED_LIST          2
+#define STRUCT_BINARY_TREE          4
+#define STRUCT_N_TREE               8
+#define STRUCT_SYS_QUEUE_SLIST     16 
+#define STRUCT_SYS_QUEUE_LIST      32
+#define STRUCT_SYS_QUEUE_STAILQ    64
+#define STRUCT_SYS_QUEUE_TAILQ    128
+#define STRUCT_SYS_TREE_SPLAY     256
+#define STRUCT_SYS_TREE_RED_BLACK 512
+
+static char*
+struct_type_to_string (int type)
+{
+	static const char* table[] = {
+		"normal",
+		"linked list",
+		"binary tree",
+		"n-ary tree",
+		"queue(3) slist",
+		"queue(3) list",
+		"queue(3) tailq",
+		"queue(3) stailq",
+		"tree(3) splay",
+		"tree(3) red-black"
+	};
+
+	char result[2048];
+	memset(result, '\0', 2048);
+
+	unsigned int index = 0;
+
+	for (unsigned int i = 1, ti = 0; i < 512; i *= 2, ti++)
+	{
+		if (type & i) 
+			snprintf(&result[index], 2048-index, ", %s", table[ti]);
+
+		index += strlen(table[ti]);
+	}
+
+	return strdup(&result[2]);
+}
+
+static int
+guess_struct_type (ctf_struct_union struct_union)
+{
+	return STRUCT_NORMAL;
+}
+
+static void
+print_struct_union (ctf_type type, unsigned int indent)
+{
+	ctf_struct_union struct_union;
+	ctf_struct_union_init(type, &struct_union);
+
+	ctf_kind kind;
+	ctf_type_get_kind(type, &kind);
+
+	if (kind == CTF_KIND_STRUCT)
+	{
+		int struct_type = guess_struct_type(struct_union);
+		char* type_string = struct_type_to_string(struct_type);
+		printf("This struct seems to be %s.\n", type_string);	
+		free(type_string);
+	}
+
+	printf("{\n");
+
+	ctf_member member = NULL;
+	while (ctf_struct_union_get_next_member(struct_union, member, &member) 
+	    == CTF_OK)
+	{
+		ctf_type member_type;
+		ctf_member_get_type(member, &type);
+
+		char* member_name;
+		ctf_member_get_name(member, &member_name);
+
+		char* member_type_string = get_type_string_representation(member_type);
+
+		for (unsigned int i = 0; i < indent+1; i++)
+			printf("  ");
+
+		printf("%s %s\n", member_type_string, member_name);
+			
+		free(member_type_string);
+	}
+
+	printf("}\n");
+}
+
 /**
  * Print type as in real C declaration.
  *
@@ -175,13 +479,21 @@ search (char* type_name, ctf_file file, ctf_type* out_type)
 static void
 print_type (ctf_type type)
 {
-	
+	ctf_kind kind;
+	ctf_type_get_kind(type, &kind);
+
+	if (kind == CTF_KIND_TYPEDEF)
+		print_typedef_chain(type);
+
+	if (kind == CTF_KIND_STRUCT
+	 || kind == CTF_KIND_UNION)
+	 print_struct_union(type, 0);
 }
 
 /**
  * Enable user to query the CTF data stored in a file. 
  *
- * User is repeatadly prompted to enter type name, while the program searches 
+ * User is repeatedly prompted to enter type name, while the program searches 
  * for such type in the file's CTF data.
  * @param argc only accepted argument count is 2
  * @param argv index 1 contains the relative path to a file with CTF data
