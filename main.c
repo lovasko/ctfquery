@@ -60,6 +60,12 @@ search (char* type_name, ctf_file file, ctf_type* out_type)
 
 				char* name;
 				ctf_float_get_name(_float, &name);
+
+				if (strcmp(name, query) == 0)
+				{
+					*out_type = type;
+					return SUCCESS;
+				}
 			}
 			break;
 		}
