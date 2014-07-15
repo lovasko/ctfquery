@@ -45,7 +45,7 @@ search (char* type_name, ctf_file file, ctf_type* out_type)
 				char* name;
 				ctf_int_get_name(_int, &name);
 
-				if (strcmp(name, query) == 0)
+				if (strcmp(name, type_name) == 0)
 				{
 					*out_type = type;
 					return SUCCESS;
@@ -61,7 +61,7 @@ search (char* type_name, ctf_file file, ctf_type* out_type)
 				char* name;
 				ctf_float_get_name(_float, &name);
 
-				if (strcmp(name, query) == 0)
+				if (strcmp(name, type_name) == 0)
 				{
 					*out_type = type;
 					return SUCCESS;
