@@ -134,8 +134,8 @@ main (int argc, char* argv[])
 		input_string = fgetln(stdin, &input_length);
 		
 		/* create the query string */
-		char* query = malloc(input_length + 1);
-		memcpy(query, input_string, input_length);
+		char* query = malloc(input_length);
+		memcpy(query, input_string, input_length - 1);
 		query[input_length] = '\0';
 
 		/* check for exit string */
