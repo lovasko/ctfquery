@@ -1,4 +1,4 @@
-#include "./libctf/src/libctf.h"
+#include "../libctf/src/libctf.h"
 
 #include <stdio.h>
 #include <stdlib.h>
