@@ -27,6 +27,11 @@ usage ()
 static int
 search (char* type_name, ctf_file file, ctf_type* out_type)
 {
+	for (unsigned int i = 0; type_name[i]; i++)
+		printf("'%c' ", type_name[i]);
+
+	printf("\n");
+
 	int rv = 0;
 	ctf_type type = NULL;
 
@@ -126,28 +131,22 @@ main (int argc, char* argv[])
 
 	while (1)
 	{
-		size_t input_length;
-		char* input_string;
-
 		fprintf(stdout, "> ");
 		fflush(stdout);
-		input_string = fgetln(stdin, &input_length);
 		
 		/* create the query string */
-		char* query = malloc(input_length);
-		memcpy(query, input_string, input_length - 1);
-		query[input_length] = '\0';
+		char query[1024];
+		memset(query, '\0', 1024);
+		fgets(query, 1024, stdin);
+		query[strlen(query)-1] = '\0';
 
 		/* check for exit string */
 		if (query[0] == '!')
 			break;
 
 		/* check for empty string */
-		if (input_length == 0)
-		{
-			free(query);
+		if (query[0] == '\0')
 			continue;
-		}
 
 		/* search for the type */
 		ctf_type type;
@@ -155,9 +154,6 @@ main (int argc, char* argv[])
 			print_type(type);
 		else
 			printf("FAILURE: query not successful\n");	
-
-		/* free malloced query string */
-		free(query);
 	}
 
 	return EXIT_SUCCESS;	
