@@ -27,19 +27,16 @@ usage ()
 static int
 search (char* type_name, ctf_file file, ctf_type* out_type)
 {
-	for (unsigned int i = 0; type_name[i]; i++)
-		printf("'%c' ", type_name[i]);
-
-	printf("\n");
-
 	int rv = 0;
 	ctf_type type = NULL;
 
+	int i = 0;
 	while ((rv = ctf_file_get_next_type(file, type, &type)) == CTF_OK)
 	{
 		ctf_kind kind;
 		ctf_type_get_kind(type, &kind);
 
+		printf("%d ", i++);
 		switch (kind)
 		{
 			case CTF_KIND_INT:
@@ -65,6 +62,88 @@ search (char* type_name, ctf_file file, ctf_type* out_type)
 
 				char* name;
 				ctf_float_get_name(_float, &name);
+
+				if (strcmp(name, type_name) == 0)
+				{
+					*out_type = type;
+					return SUCCESS;
+				}
+			}
+			break;
+
+			case CTF_KIND_TYPEDEF:
+			{
+				ctf_typedef _typedef;
+				ctf_typedef_init(type, &_typedef);
+
+				char* name;
+				ctf_typedef_get_name(_typedef, &name);
+
+				if (strcmp(name, type_name) == 0)
+				{
+					*out_type = type;
+					return SUCCESS;
+				}
+			}
+			break;
+
+			case CTF_KIND_FWD_DECL:
+			{
+				ctf_fwd_decl fwd_decl;
+				ctf_fwd_decl_init(type, &fwd_decl);
+
+				char* name;
+				ctf_fwd_decl_get_name(fwd_decl, &name);
+
+				if (strcmp(name, type_name) == 0)
+				{
+					*out_type = type;
+					return SUCCESS;
+				}
+			}
+			break;
+
+			case CTF_KIND_ARRAY:
+			{
+				ctf_array array;
+				ctf_array_init(type, &array);
+
+				char* name;
+				ctf_array_get_name(array, &name);
+
+				if (strcmp(name, type_name) == 0)
+				{
+					*out_type = type;
+					return SUCCESS;
+				}
+			}
+			break;
+
+			case CTF_KIND_ENUM:
+			{
+				ctf_enum _enum;
+				ctf_enum_init(type, &_enum);
+
+				char* name;
+				ctf_enum_get_name(_enum, &name);
+
+				if (strcmp(name, type_name) == 0)
+				{
+					*out_type = type;
+					return SUCCESS;
+				}
+			}
+			break;
+
+			/* fall through */
+			case CTF_KIND_STRUCT:
+			case CTF_KIND_UNION:
+			{
+				ctf_struct_union struct_union;
+				ctf_struct_union_init(type, &struct_union);
+
+				char* name;
+				ctf_struct_union_get_name(struct_union, &name);
 
 				if (strcmp(name, type_name) == 0)
 				{
