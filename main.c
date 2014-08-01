@@ -566,7 +566,7 @@ guess_struct_type (ctf_type type)
 		
 		printf("Member! Getting kind\n");
 		ctf_kind member_kind;
-		ctf_type_get_kind(type, &member_kind);
+		ctf_type_get_kind(member_type, &member_kind);
 
 		printf("Member! Starting checks\n");
 		if (member_kind == CTF_KIND_POINTER)
