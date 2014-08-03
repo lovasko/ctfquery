@@ -412,6 +412,9 @@ print_typedef_chain (ctf_type type)
 static char*
 struct_type_to_string (int type)
 {
+	if (type == STRUCT_NORMAL)
+		return strdup("normal");
+
 	static const char* table[] = {
 		"normal",
 		"linked list",
