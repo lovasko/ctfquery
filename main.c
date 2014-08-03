@@ -591,7 +591,7 @@ guess_struct_type (ctf_type type)
 			{
 				/* check for single linked list */
 				int slist_description[] = {GUESS_DESC_POINTER};
-				char* slist_names[] = {"le_next"};
+				char* slist_names[] = {"sle_next"};
 
 				if (guess_check_struct(member_su, id, slist_description, slist_names, 1))
 					result |= STRUCT_SYS_QUEUE_SLIST;
