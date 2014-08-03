@@ -530,10 +530,7 @@ guess_check_struct (ctf_struct_union struct_union, ctf_id id, int* desc,
 		idx++;
 	}
 
-	if (checksum == size)
-		return 1;
-	else
-		return 0;
+	return (checksum == size);
 }
 
 static int
