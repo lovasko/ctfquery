@@ -693,7 +693,6 @@ print_struct_union (ctf_type type, unsigned int indent)
 static void
 print_type (ctf_type type)
 {
-	printf("Printing type\n");
 	ctf_kind kind;
 	ctf_type_get_kind(type, &kind);
 
