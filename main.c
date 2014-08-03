@@ -454,7 +454,6 @@ struct_type_to_string (int type)
 static int
 guess_check_member (ctf_member member, ctf_id id, int desc, char* name)
 {
-	printf("Checking struct member\n");
 	ctf_type type;
 	ctf_member_get_type(member, &type);
 
@@ -512,7 +511,6 @@ static int
 guess_check_struct (ctf_struct_union struct_union, ctf_id id, int* desc, 
     char* names[], size_t size)
 {
-	printf("Checking struct\n");
 	ctf_count member_count;
 	ctf_struct_union_get_member_count(struct_union, &member_count);
 
@@ -536,7 +534,6 @@ guess_check_struct (ctf_struct_union struct_union, ctf_id id, int* desc,
 static int
 guess_struct_type (ctf_type type)
 {
-	printf("Guessing struct type\n");
 	int result = STRUCT_NORMAL;
 	int self_ref_with_pointer = 0;
 
@@ -550,19 +547,14 @@ guess_struct_type (ctf_type type)
 	while (ctf_struct_union_get_next_member(struct_union, member, &member) 
 	    == CTF_OK)
 	{
-		printf("Member!\n");
-		printf("Member! Getting type\n");
 		ctf_type member_type;
 		ctf_member_get_type(member, &member_type);
 		
-		printf("Member! Getting kind\n");
 		ctf_kind member_kind;
 		ctf_type_get_kind(member_type, &member_kind);
 
-		printf("Member! Starting checks\n");
 		if (member_kind == CTF_KIND_POINTER)
 		{
-			printf("Checking simple pointer\n");
 			ctf_type ref_type;
 			ctf_type_init(member_type, &ref_type);
 
@@ -577,15 +569,12 @@ guess_struct_type (ctf_type type)
 		{
 			char* member_name;
 			ctf_member_get_name(member, &member_name);
-			printf("Member '%s' seems to be a struct.\n", member_name);
 
 			ctf_struct_union member_su;
 			ctf_struct_union_init(member_type, &member_su);
-			printf("Initialized the struct_union.\n");
 
 			char* name;
 			ctf_struct_union_get_name(member_su, &name);
-			printf("Checking member struct with name '%s'\n", name);
 
 			if (name != NULL && name[0] == '\0')
 			{
@@ -654,7 +643,6 @@ guess_struct_type (ctf_type type)
 static void
 print_struct_union (ctf_type type, unsigned int indent)
 {
-	printf("Printing struct or union\n");
 	ctf_struct_union struct_union;
 	ctf_struct_union_init(type, &struct_union);
 
