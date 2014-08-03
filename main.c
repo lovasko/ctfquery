@@ -375,6 +375,26 @@ print_type_name (ctf_type type)
 	}
 }
 
+static ctf_type 
+solve_typedef_chain (ctf_type type)
+{
+	ctf_kind kind;
+	ctf_type_get_kind(type, &kind);
+
+	if (kind == CTF_KIND_TYPEDEF)
+	{
+		ctf_typedef _typedef;
+		ctf_typedef_init(type, &_typedef);
+
+		ctf_type ref_type;
+		ctf_typedef_get_type(_typedef, &ref_type);
+
+		return solve_typedef_chain(ref_type);
+	}
+	else
+		return type;	
+}
+
 static void
 print_typedef_chain (ctf_type type)
 {
