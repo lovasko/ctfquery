@@ -468,12 +468,7 @@ guess_check_member (ctf_member member, ctf_id id, int desc, char* name)
 		return 0;
 
 	if (desc == GUESS_DESC_INT)
-	{
-		if (kind == CTF_KIND_INT)
-			return 1;
-		else
-			return 0;
-	}
+		return (kind == CTF_KIND_INT);
 	else if (desc == GUESS_DESC_POINTER)
 	{
 		if (kind != CTF_KIND_POINTER)
@@ -485,10 +480,7 @@ guess_check_member (ctf_member member, ctf_id id, int desc, char* name)
 		ctf_id ref_id;
 		ctf_type_get_id(ref_type, &ref_id);
 
-		if (ref_id == id)
-			return 1;
-		else
-			return 0;
+		return (ref_id == id);
 	}
 	else if (desc == GUESS_DESC_POINTER_TO_POINTER)
 	{
@@ -510,10 +502,7 @@ guess_check_member (ctf_member member, ctf_id id, int desc, char* name)
 		ctf_id ref_ref_id;
 		ctf_type_get_id(ref_ref_type, &ref_ref_id);
 
-		if (ref_ref_id == id)
-			return 1;
-		else
-			return 0;
+		return (ref_ref_id == id);
 	}
 	else
 		return 0;
