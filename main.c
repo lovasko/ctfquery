@@ -444,6 +444,8 @@ struct_type_to_string (int type)
 
 	result[strlen(result)-2] = '\0';
 
+	return strdup(result);
+}
 
 #define GUESS_DESC_POINTER            1
 #define GUESS_DESC_POINTER_TO_POINTER 2
