@@ -203,8 +203,13 @@ type_to_string (ctf_type type)
 
 			char result[1024];
 			memset(result, '\0', 1024);
-			snprintf(result, 1024, "%s %s", 
-			    (kind == CTF_KIND_STRUCT ? "struct" : "union"), name);
+
+			if (name == NULL || name[0] == '\0')
+				snprintf(result, 1024, "anonymous %s", (kind == CTF_KIND_STRUCT ? 
+				    "struct" : "union"));
+			else
+				snprintf(result, 1024, "%s %s", 
+			      (kind == CTF_KIND_STRUCT ? "struct" : "union"), name);
 
 			return strdup(result);
 		}
