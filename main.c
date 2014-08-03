@@ -436,9 +436,10 @@ struct_type_to_string (int type)
 	for (unsigned int i = 2, ti = 1; i < 512; i *= 2, ti++)
 	{
 		if (type & i) 
-			snprintf(&result[index], 2048-index, ", %s", table[ti]);
-
-		index += strlen(table[ti]);
+		{
+			snprintf(&result[index], 2048-index, "%s, ", table[ti]);
+			index += strlen(table[ti]);
+		}
 	}
 
 	result[strlen(result)-2] = '\0';
