@@ -680,10 +680,19 @@ print_struct_union (ctf_type type, unsigned int indent)
 	{
 		int struct_type = guess_struct_type(type);
 		char* type_string = struct_type_to_string(struct_type);
-		printf("This struct seems to be %s.\n", type_string);	
+
+		if (struct_type > 1)
+		{
+			for (unsigned int i = 0; i < indent; i++)
+				printf("  ");
+			printf("This struct seems to be %s.\n", type_string);	
+		}
+
 		free(type_string);
 	}
 
+	for (unsigned int i = 0; i < indent; i++)
+		printf("  ");
 	printf("{\n");
 
 	ctf_member member = NULL;
@@ -701,12 +710,28 @@ print_struct_union (ctf_type type, unsigned int indent)
 		for (unsigned int i = 0; i < indent+1; i++)
 			printf("  ");
 
-		printf("%s %s\n", member_type_string, member_name);
-			
+		printf("%s %s", member_type_string, member_name);
 		free(member_type_string);
+
+		ctf_kind member_kind;
+		ctf_type_get_kind(member_type, &member_kind);
+
+		if (member_kind == CTF_KIND_TYPEDEF)
+			print_typedef_chain(member_type);
+
+		if (member_kind == CTF_KIND_STRUCT
+		 || member_kind == CTF_KIND_UNION)
+		{
+			printf(" =\n");		
+			print_struct_union(member_type, indent+1);
+		}
+
+		printf("\n");
 	}
 
-	printf("}\n");
+	for (unsigned int i = 0; i < indent; i++)
+		printf("  ");
+	printf("}");
 }
 
 /**
@@ -729,6 +754,8 @@ print_type (ctf_type type)
 	if (kind == CTF_KIND_STRUCT
 	 || kind == CTF_KIND_UNION)
 	 print_struct_union(type, 0);
+
+	printf("\n");
 }
 
 /**
