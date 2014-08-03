@@ -418,8 +418,10 @@ print_typedef_chain (ctf_type type)
 	}
 	else
 	{
-		print_type_name(type);
-		printf("\n");
+		char* type_name;
+		type_name = type_to_string(type);
+		printf("%s", type_name);
+		free(type_name);
 	}
 }
 
