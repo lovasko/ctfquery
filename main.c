@@ -433,7 +433,7 @@ struct_type_to_string (int type)
 
 	unsigned int index = 0;
 
-	for (unsigned int i = 1, ti = 0; i < 512; i *= 2, ti++)
+	for (unsigned int i = 2, ti = 1; i < 512; i *= 2, ti++)
 	{
 		if (type & i) 
 			snprintf(&result[index], 2048-index, ", %s", table[ti]);
@@ -441,8 +441,7 @@ struct_type_to_string (int type)
 		index += strlen(table[ti]);
 	}
 
-	return strdup(&result[2]);
-}
+	result[strlen(result)-2] = '\0';
 
 
 #define GUESS_DESC_POINTER            1
