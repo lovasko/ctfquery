@@ -1,0 +1,14 @@
+cflags = -g -Wall -Wextra -ansi -pedantic -I/usr/include/ctf/
+ldflags = -lbsdctf
+
+rule compile
+ command = clang $cflags -c $in -o $out
+
+rule link
+ command = clang -o $out $in $ldflags
+
+build bin/ctfquery: link obj/main.o obj/symbol.o
+
+build obj/main.o: compile src/main.c
+build obj/symbol.o: compile src/symbol.c
+
