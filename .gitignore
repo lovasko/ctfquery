@@ -1,1 +1,3 @@
-ctfquery
+bin/
+obj/
+.ninja_*
