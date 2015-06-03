@@ -32,8 +32,7 @@ follow_chain(struct m_list* list, ctf_type type)
 			memset(chain_link, '\0', 1024);
 			snprintf(chain_link, 1024, "%s (%d)", name, id);
 
-			printf("%s\n", chain_link);
-			m_list_append(list, M_LIST_COPY_DEEP, chain_link, strlen(chain_link));	
+			m_list_append(list, M_LIST_COPY_DEEP, chain_link, strlen(chain_link)+1);
 			type = ref_type;
 		} else {
 			ctf_type_to_string(type, &name);
@@ -41,7 +40,7 @@ follow_chain(struct m_list* list, ctf_type type)
 			memset(chain_link, '\0', 1024);
 			snprintf(chain_link, 1024, "%s (%d)", name, id);
 			free(name);
-			m_list_append(list, M_LIST_COPY_DEEP, chain_link, strlen(chain_link));	
+			m_list_append(list, M_LIST_COPY_DEEP, chain_link, strlen(chain_link)+1);
 			break;
 		}
 	}
@@ -71,6 +70,7 @@ solve_typedef_chain(ctf_file file, char* input)
 	ctf_kind kind;
 	struct id_arg arg;
 	long int input_num;
+	char* arrow;
 
 	/* convert and validate the input */
 	errno = 0;
@@ -104,7 +104,10 @@ solve_typedef_chain(ctf_file file, char* input)
 	/* create and print a list of typedef names */
 	m_list_init(&list);
 	follow_chain(&list, arg.type);
-	m_list_join(&list, M_LIST_COPY_SHALLOW, " -> ", 0);
+
+	arrow = strdup(" -> ");
+	m_list_join(&list, M_LIST_COPY_SHALLOW, arrow, 0);
+
 	m_list_map(&list, print_string, NULL);
 	printf("\n");
 
