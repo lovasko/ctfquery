@@ -32,6 +32,7 @@ main(int argc, char* argv[])
 	uint8_t mode;
 	ctf_file file;
 	char* arg;
+	ctf_version version;
 	
 	mode = MODE_NONE;
 	while ((option = getopt(argc, argv, "c:hl:s:t:v")) != -1) {
@@ -47,7 +48,7 @@ main(int argc, char* argv[])
 
 			case 'l': 
 				mode = MODE_LABEL;
-				arg = optarg;
+				arg = strdup(optarg);
 			break;
 
 			case 's': 
@@ -99,6 +100,11 @@ main(int argc, char* argv[])
 
 		case MODE_TYPE:
 			return print_type(file, arg);
+
+		case MODE_VERSION:
+			ctf_file_get_version(file, &version);
+			printf("%d\n", version);
+		return EXIT_SUCCESS;
 
 		default:
 			printf("ERROR: unknown mode\n");
