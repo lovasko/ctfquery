@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -30,12 +31,13 @@ main(int argc, char* argv[])
 	int option;
 	int retval;
 	uint8_t mode;
+	uint8_t is_compressed;
 	ctf_file file;
 	char* arg;
 	ctf_version version;
 	
 	mode = MODE_NONE;
-	while ((option = getopt(argc, argv, "c:hl:s:t:v")) != -1) {
+	while ((option = getopt(argc, argv, "c:hl:s:t:vz")) != -1) {
 		switch(option) {
 			case 'c': 
 				mode = MODE_CHAIN;
@@ -65,6 +67,10 @@ main(int argc, char* argv[])
 				mode = MODE_VERSION;
 			break;
 
+			case 'z':
+				mode = MODE_COMPRESSION;
+			break;
+
 			case '?':
 				fprintf(stderr, "ERROR: invalid option %c\n", optopt);	
 				mode = MODE_HELP;
@@ -77,7 +83,7 @@ main(int argc, char* argv[])
 	}
 
 	if (mode == MODE_HELP || mode == MODE_NONE) {
-		printf("ctfquery [-s SYM | -t TYPE_ID | -c TYPE_ID | -l LABEL | -v | -h ] path\n");
+		printf("ctfquery [-s SYM | -t TYPE_ID | -c TYPE_ID | -l LABEL | -v | -h ] <file>\n");
 		return EXIT_FAILURE;
 	}
 
@@ -104,6 +110,11 @@ main(int argc, char* argv[])
 		case MODE_VERSION:
 			ctf_file_get_version(file, &version);
 			printf("%d\n", version);
+		return EXIT_SUCCESS;
+
+		case MODE_COMPRESSION:
+			ctf_file_get_is_compressed(file, &is_compressed);
+			printf("%s\n", is_compressed ? "yes" : "no");
 		return EXIT_SUCCESS;
 
 		default:
