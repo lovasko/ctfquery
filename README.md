@@ -16,7 +16,8 @@ $ ninja
 ```
 
 ## Dependencies
- * libctf
+ * [`libctf`](https://github.com/lovasko/libctf)
+ * [`m_list`](https://github.com/lovasko/m_list)
 
 ## Example
 ### ... or the tale of the maximal process ID 
