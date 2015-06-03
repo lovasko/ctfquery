@@ -22,6 +22,7 @@
 #define MODE_VERSION     4
 #define MODE_COMPRESSION 5
 #define MODE_HELP        6
+#define MODE_TYPE        7
 
 int
 main(int argc, char* argv[])
@@ -33,11 +34,11 @@ main(int argc, char* argv[])
 	char* arg;
 	
 	mode = MODE_NONE;
-	while ((option = getopt(argc, argv, "c:hl:s:v")) != -1) {
+	while ((option = getopt(argc, argv, "c:hl:s:t:v")) != -1) {
 		switch(option) {
 			case 'c': 
 				mode = MODE_CHAIN;
-				arg = optarg;
+				arg = strdup(optarg);
 			break;
 
 			case 'h': 
@@ -51,6 +52,11 @@ main(int argc, char* argv[])
 
 			case 's': 
 				mode = MODE_SYMBOL;
+				arg = strdup(optarg);
+			break;
+
+			case 't':
+				mode = MODE_TYPE;
 				arg = strdup(optarg);
 			break;
 
@@ -90,6 +96,9 @@ main(int argc, char* argv[])
 
 		case MODE_CHAIN:
 			return solve_typedef_chain(file, arg);
+
+		case MODE_TYPE:
+			return print_type(file, arg);
 
 		default:
 			printf("ERROR: unknown mode\n");

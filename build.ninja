@@ -7,9 +7,10 @@ rule compile
 rule link
  command = clang -o $out $in $ldflags
 
-build bin/ctfquery: link obj/main.o obj/symbol.o obj/typedef_chain.o
+build bin/ctfquery: link obj/main.o obj/symbol.o obj/typedef_chain.o obj/types.o
 
 build obj/main.o: compile src/main.c
 build obj/symbol.o: compile src/symbol.c
 build obj/typedef_chain.o: compile src/typedef_chain.c
+build obj/types.o: compile src/types.c
 
