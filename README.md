@@ -2,7 +2,7 @@
 Query the CTF for specific information.
 
 ## Usage
-`ctfquery [-s SYM | -t TYPE_ID | -c TYPE_ID | -l LABEL | -v | -h ] <file>` 
+`ctfquery [ -s SYM | -t TYPE_ID | -c TYPE_ID | -l LABEL | -v | -h ] <file>`
  * `-s SYM` search for a symbol named `SYM`
  * `-t TYPE_ID` search for a type identified with `TYPE_ID`
  * `-c TYPE_ID` solve a `typedef` chain with the head identified with `TYPE_ID`
