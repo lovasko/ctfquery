@@ -88,8 +88,8 @@ main(int argc, char* argv[])
 		case MODE_SYMBOL:
 			return find_symbol(file, arg);
 
-		/* case MODE_CHAIN: */
-		/* 	return solve_typedef_chain(file, arg); */
+		case MODE_CHAIN:
+			return solve_typedef_chain(file, arg);
 
 		default:
 			printf("ERROR: unknown mode\n");
