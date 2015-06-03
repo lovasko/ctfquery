@@ -17,20 +17,31 @@ follow_chain(struct m_list* list, ctf_type type)
 	ctf_kind kind;
 	ctf_typedef _typedef;
 	ctf_type ref_type;
+	ctf_id id;
 	char* name;
+	char chain_link[1024];
 
 	while (1) {
 		ctf_type_get_kind(type, &kind);
 		if (kind == CTF_KIND_TYPEDEF) {
 			ctf_typedef_init(type, &_typedef);
-			ctf_typedef_get_type(_typedef, &ref_type);
 			ctf_typedef_get_name(_typedef, &name);
+			ctf_typedef_get_type(_typedef, &ref_type);
+			ctf_type_get_id(type, &id);
 
-			m_list_append(list, M_LIST_COPY_SHALLOW, name, 0);	
+			memset(chain_link, '\0', 1024);
+			snprintf(chain_link, 1024, "%s (%d)", name, id);
+
+			printf("%s\n", chain_link);
+			m_list_append(list, M_LIST_COPY_DEEP, chain_link, strlen(chain_link));	
 			type = ref_type;
 		} else {
 			ctf_type_to_string(type, &name);
-			m_list_append(list, M_LIST_COPY_SHALLOW, name, 0);	
+			ctf_type_get_id(type, &id);
+			memset(chain_link, '\0', 1024);
+			snprintf(chain_link, 1024, "%s (%d)", name, id);
+			free(name);
+			m_list_append(list, M_LIST_COPY_DEEP, chain_link, strlen(chain_link));	
 			break;
 		}
 	}
