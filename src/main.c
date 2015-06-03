@@ -1,11 +1,3 @@
-/* -s SYMBOL = find a symbol and print its type id */
-/* -t TYPE_ID = find a type and describe it */
-/* -c TYPE_ID = print out a typedef chain */
-/* -l LABEL = print the type index referring to the label */
-/* -v = print the CTF version of the file */
-/* -z = print yes/no based on the compression state */
-/* -h = print help */
-
 #include <ctf/ctf.h>
 
 #include <stdio.h>
@@ -116,6 +108,9 @@ main(int argc, char* argv[])
 			ctf_file_get_is_compressed(file, &is_compressed);
 			printf("%s\n", is_compressed ? "yes" : "no");
 		return EXIT_SUCCESS;
+
+		case MODE_LABEL:
+			return find_label(file, arg);
 
 		default:
 			printf("ERROR: unknown mode\n");
