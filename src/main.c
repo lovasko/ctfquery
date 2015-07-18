@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
+#include <paths.h>
 
 #include "query.h"
 
@@ -27,8 +28,10 @@ main(int argc, char* argv[])
 	ctf_file file;
 	char* arg;
 	ctf_version version;
+	const char* path;
 	
 	mode = MODE_NONE;
+	arg = NULL;
 	while ((option = getopt(argc, argv, "c:hl:s:t:vz")) != -1) {
 		switch(option) {
 			case 'c': 
@@ -79,12 +82,12 @@ main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (argc - optind < 1) {
-		fprintf(stderr, "ERROR: path to an ELF file expected\n");
-		return EXIT_FAILURE;
-	}
+	if (argc - optind < 1)
+		path = getbootfile();
+	else
+		path = argv[optind];
 
-	if ((retval = ctf_file_read(argv[optind], &file)) != CTF_OK) {
+	if ((retval = ctf_file_read(path, &file)) != CTF_OK) {
 		fprintf(stderr, "ERROR: %s\n", ctf_get_error_string(retval));
 		return EXIT_FAILURE;
 	}
