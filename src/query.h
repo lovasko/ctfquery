@@ -7,6 +7,9 @@ int
 find_symbol(ctf_file file, char* symbol);
 
 int
+find_all_symbols(ctf_file file, char* input);
+
+int
 solve_typedef_chain(ctf_file file, char* input);
 
 int

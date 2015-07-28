@@ -17,6 +17,7 @@
 #define MODE_COMPRESSION 5
 #define MODE_HELP        6
 #define MODE_TYPE        7
+#define MODE_SYMBOL_ALL  8
 
 int
 main(int argc, char* argv[])
@@ -32,7 +33,7 @@ main(int argc, char* argv[])
 	
 	mode = MODE_NONE;
 	arg = NULL;
-	while ((option = getopt(argc, argv, "c:hl:s:t:vz")) != -1) {
+	while ((option = getopt(argc, argv, "c:hl:s:S:t:vz")) != -1) {
 		switch(option) {
 			case 'c': 
 				mode = MODE_CHAIN;
@@ -50,6 +51,11 @@ main(int argc, char* argv[])
 
 			case 's': 
 				mode = MODE_SYMBOL;
+				arg = strdup(optarg);
+			break;
+
+			case 'S':
+				mode = MODE_SYMBOL_ALL;
 				arg = strdup(optarg);
 			break;
 
@@ -114,6 +120,9 @@ main(int argc, char* argv[])
 
 		case MODE_LABEL:
 			return find_label(file, arg);
+		
+		case MODE_SYMBOL_ALL:
+			return find_all_symbols(file, arg);
 
 		default:
 			printf("ERROR: unknown mode\n");
